@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Shapes;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Diagnostics;
 
 namespace Graph
 {
@@ -23,52 +25,80 @@ namespace Graph
             public Line line;
         }
 
-        private static int pointId = 0;
+        public struct Data
+        {
+            public List<GraphLine> Lines;
+            public List<GraphPoint> Points;
 
-        public static List<GraphLine> Lines { get; set; } = new List<GraphLine>();
-        public static List<GraphPoint> Points { get; set; } = new List<GraphPoint>();
+            public Data()
+            {
+                Lines = new List<GraphLine>();
+                Points = new List<GraphPoint>();
+            }
+        }
+
+        public static Data data = new Data();
+        private static int pointId = 0;
 
         public static GraphPoint GetPoint(Ellipse e)
         {
-            return Points.Find((x) => x.ellipse.Equals(e));
+            return data.Points.Find((x) => x.ellipse.Equals(e));
+        }
+        
+        public static GraphPoint GetPoint(int id)
+        {
+            return data.Points.Find((x) => x.Id == id);
         }
 
         public static GraphLine GetLine(Ellipse first, Ellipse second)
         {
-            return Lines.Find((x) => x.FirstId == GetPoint(first).Id && x.SecondId == GetPoint(second).Id || x.FirstId == GetPoint(second).Id && x.SecondId == GetPoint(first).Id);
+            return data.Lines.Find((x) => x.FirstId == GetPoint(first).Id && x.SecondId == GetPoint(second).Id || x.FirstId == GetPoint(second).Id && x.SecondId == GetPoint(first).Id);
         }
 
         public static GraphLine[] GetLines(Ellipse ellipse)
         {
-            return Lines.FindAll((x) => x.FirstId == GetPoint(ellipse).Id || x.SecondId == GetPoint(ellipse).Id).ToArray();
+            return data.Lines.FindAll((x) => x.FirstId == GetPoint(ellipse).Id || x.SecondId == GetPoint(ellipse).Id).ToArray();
         }
 
         public static void AddPoint(double x, double y, Ellipse uiElement)
         {
             GraphPoint point = new GraphPoint() { Id = pointId++, X = x, Y = y, ellipse = uiElement};
-            Points.Add(point);
+            data.Points.Add(point);
+        }
+
+        public static void AddPoint(int id, double x, double y, Ellipse uiElement)
+        {
+            GraphPoint point = new GraphPoint() { Id = id, X = x, Y = y, ellipse = uiElement };
+            data.Points.Add(point);
+            pointId = id;
         }
 
         public static void AddLine(Ellipse first, Ellipse second, Line line)
         {
-            int firstIndex = Points.Find((x) => x.ellipse.Equals(first)).Id;
-            int secondIndex = Points.Find((x) => x.ellipse.Equals(second)).Id;
+            int firstIndex = data.Points.Find((x) => x.ellipse.Equals(first)).Id;
+            int secondIndex = data.Points.Find((x) => x.ellipse.Equals(second)).Id;
 
             GraphLine l = new GraphLine() { FirstId = firstIndex, SecondId = secondIndex, line = line };
-            Lines.Add(l);
+            data.Lines.Add(l);
+        }
+
+        public static void AddLine(GraphPoint first, GraphPoint second, Line line)
+        {
+            GraphLine l = new GraphLine() { FirstId = first.Id, SecondId = second.Id, line = line };
+            data.Lines.Add(l);
         }
 
         public static void RemovePoint(Ellipse uiElement)
         {
-            GraphPoint point = Points.Find((x) => x.ellipse.Equals(uiElement));
-            Points.Remove(point);
+            GraphPoint point = data.Points.Find((x) => x.ellipse.Equals(uiElement));
+            data.Points.Remove(point);
 
             int i = 0;
-            while(i < Lines.Count)
+            while(i < data.Lines.Count)
             {
-                if (Lines[i].FirstId == point.Id || Lines[i].SecondId == point.Id)
+                if (data.Lines[i].FirstId == point.Id || data.Lines[i].SecondId == point.Id)
                 {
-                    Lines.RemoveAt(i);
+                    data.Lines.RemoveAt(i);
                     continue;
                 }
                 i++;
@@ -77,14 +107,36 @@ namespace Graph
 
         public static void RemoveLine(Line line)
         {
-            foreach(GraphLine l in Lines)
+            foreach(GraphLine l in data.Lines)
             {
-                if (l.Equals(line))
+                if (l.line.Equals(line))
                 {
-                    Lines.Remove(l);
+                    data.Lines.Remove(l);
                     return;
                 }
             }
+        }
+
+        public static void Clear()
+        {
+            data = new Data();
+            pointId = 0;
+        }
+
+        public static string DataToJson()
+        {
+            return JsonSerializer.Serialize(data.Points) + "\n" + JsonSerializer.Serialize(data.Lines);
+        }
+
+        public static Data DataFromJson(string json)
+        {
+            string[] jsons = json.Split("\n");
+
+            Data d = new Data();
+            d.Points = JsonSerializer.Deserialize<List<GraphPoint>>(jsons[0]);
+            d.Lines = JsonSerializer.Deserialize<List<GraphLine>>(jsons[1]);
+
+            return d;
         }
     }
 }
