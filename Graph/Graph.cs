@@ -81,13 +81,25 @@ namespace Graph
             AddPoint(point.Id, x, y, e);
         }
 
-        public static void AddLine(Ellipse first, Ellipse second, Line line)
+        public static bool AddLine(Ellipse first, Ellipse second, Line line)
         {
             int firstIndex = data.Points.Find((x) => x.ellipse.Equals(first)).Id;
             int secondIndex = data.Points.Find((x) => x.ellipse.Equals(second)).Id;
 
-            GraphLine l = new GraphLine() { FirstId = firstIndex, SecondId = secondIndex, line = line };
-            data.Lines.Add(l);
+            foreach(GraphLine l in data.Lines)
+            {
+                bool firstAlreadyUsed = l.FirstId == firstIndex && l.SecondId == secondIndex;
+                bool secondAlreadyUsed = l.FirstId == secondIndex && l.SecondId == firstIndex;
+
+                if (firstAlreadyUsed || secondAlreadyUsed)
+                {
+                    return false;
+                }
+            }
+
+            GraphLine newLine = new GraphLine() { FirstId = firstIndex, SecondId = secondIndex, line = line };
+            data.Lines.Add(newLine);
+            return true;
         }
 
         public static void AddLine(GraphPoint first, GraphPoint second, Line line)

@@ -53,7 +53,7 @@ namespace Graph
 
                 GraphData.AddPoint(x, y, ellipse);
             }
-            else if(selectedEllipse != null && Instruments.currentTool == Instruments.Tool.PointMove && Mouse.DirectlyOver == MainCanvas)
+            else if(selectedEllipse != null && Instruments.currentTool == Instruments.Tool.PointMove && Mouse.DirectlyOver != selectedEllipse)
             {
                 GraphData.GraphPoint point = GraphData.GetPoint(selectedEllipse);
 
@@ -130,7 +130,12 @@ namespace Graph
             MainCanvas.Children.Add(line);
             Canvas.SetZIndex(line, 2);
 
-            GraphData.AddLine(selectedEllipse, e, line);
+            bool added = GraphData.AddLine(selectedEllipse, e, line);
+            if (!added)
+            {
+                MainCanvas.Children.Remove(line);
+            }
+
             DeselectEllipse();
         }
 
