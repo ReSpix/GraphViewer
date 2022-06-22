@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading;
 
 namespace Graph
 {
@@ -40,6 +41,7 @@ namespace Graph
             if (Instruments.currentTool == Instruments.Tool.PointAdd)
             {
                 Ellipse ellipse = new Ellipse() { Height = pointSize, Width = pointSize, Fill = pointFill };
+
                 ellipse.MouseLeftButtonDown += PointClick;
 
                 MainCanvas.Children.Add(ellipse);
@@ -50,6 +52,20 @@ namespace Graph
                 Canvas.SetZIndex(ellipse, 10);
 
                 GraphData.AddPoint(x, y, ellipse);
+            }
+            else if(selectedEllipse != null && Instruments.currentTool == Instruments.Tool.PointMove && Mouse.DirectlyOver == MainCanvas)
+            {
+                GraphData.GraphPoint point = GraphData.GetPoint(selectedEllipse);
+
+                double y = Mouse.GetPosition(MainCanvas).Y;
+                double x = Mouse.GetPosition(MainCanvas).X;
+
+                GraphData.EditPoint(selectedEllipse, x, y); 
+
+                selectedEllipse.Fill = pointFill;
+                selectedEllipse = null;
+
+                InitializeGraph(GraphData.data);                
             }
         }
 
@@ -73,6 +89,23 @@ namespace Graph
                 case Instruments.Tool.LineRemove:
                     RemoveLine(sender as Ellipse);
                     break;
+
+                case Instruments.Tool.PointMove:
+                    MovePoint(sender as Ellipse);
+                    break;
+            }
+        }
+
+        private void MovePoint(Ellipse e)
+        {
+            if(selectedEllipse == null)
+            {
+                selectedEllipse = e;
+                selectedEllipse.Fill = selectedPointFill;
+            }
+            else if(selectedEllipse == e)
+            {
+                DeselectEllipse();
             }
         }
 
@@ -200,28 +233,12 @@ namespace Graph
         {
             RadioButton radioButton = sender as RadioButton;
 
-            switch (radioButton.Content)
-            {
-                case "Точка +":
-                    Instruments.currentTool = Instruments.Tool.PointAdd;
-                    break;
+            var radioButtons = LogicalTreeHelper.GetChildren(stack).OfType<RadioButton>().ToList();
+            var selected = radioButtons.FirstOrDefault(x => (bool)x.IsChecked);
+            int id = radioButtons.IndexOf(selected);
 
-                case "Точка -":
-                    Instruments.currentTool = Instruments.Tool.PointRemove;
-                    break;
+            Instruments.currentTool = (Instruments.Tool)id + 1;
 
-                case "Линия +":
-                    Instruments.currentTool = Instruments.Tool.LineAdd;
-                    break;
-
-                case "Линия -":
-                    Instruments.currentTool = Instruments.Tool.LineRemove;
-                    break;
-
-                default:
-                    MessageBox.Show("Нет такого инструмента", "Ошибка");
-                    return;
-            }
             DeselectEllipse();
         }
     }

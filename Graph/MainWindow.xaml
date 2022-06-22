@@ -8,15 +8,16 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="75"></ColumnDefinition>
+            <ColumnDefinition Width="80"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0">
-            <RadioButton GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Точка +</RadioButton>
-            <RadioButton GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Точка -</RadioButton>
-            <RadioButton GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Линия +</RadioButton>
-            <RadioButton GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Линия -</RadioButton>
+        <StackPanel x:Name="stack" Orientation="Vertical" Grid.Row="1" Grid.Column="0">
+            <RadioButton x:Name="addPoint_rb" GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Точка +</RadioButton>
+            <RadioButton x:Name="removePoint_rb" GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Точка -</RadioButton>
+            <RadioButton x:Name="movePoint_rb" GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Точка &lt;-&gt;</RadioButton>
+            <RadioButton x:Name="addLine_rb" GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Линия +</RadioButton>
+            <RadioButton x:Name="removeLine_rb" GroupName="Instruments" Margin="2,5,0,0" Checked="ToolChanged">Линия -</RadioButton>
             <Button Margin="0,20,0,0" Click="ClearClick">Очистить</Button>
             <Button Margin="0,20,0,0" Click="ExportClick">Сохранить</Button>
             <Button Margin="0,2,0,0" Click="ImportClick">Открыть</Button>

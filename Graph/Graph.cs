@@ -73,6 +73,14 @@ namespace Graph
             pointId = id;
         }
 
+        public static void EditPoint(Ellipse e, double x, double y)
+        {
+            GraphPoint point = data.Points.Find((p) => p.ellipse.Equals(e));
+            data.Points.Remove(point);
+
+            AddPoint(point.Id, x, y, e);
+        }
+
         public static void AddLine(Ellipse first, Ellipse second, Line line)
         {
             int firstIndex = data.Points.Find((x) => x.ellipse.Equals(first)).Id;

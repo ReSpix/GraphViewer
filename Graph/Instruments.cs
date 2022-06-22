@@ -10,7 +10,7 @@ namespace Graph
     {
         public enum Tool
         {
-            None, PointAdd, PointRemove, LineAdd, LineRemove
+            None, PointAdd, PointRemove, PointMove, LineAdd, LineRemove
         }
 
         public static Tool currentTool;
