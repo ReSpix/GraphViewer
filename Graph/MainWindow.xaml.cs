@@ -18,7 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
 
-namespace Graph
+namespace GraphViewer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -51,21 +51,21 @@ namespace Graph
                 Canvas.SetLeft(ellipse, x - pointSize / 2);
                 Canvas.SetZIndex(ellipse, 10);
 
-                GraphData.AddPoint(x, y, ellipse);
+                Graph.AddPoint(x, y, ellipse);
             }
             else if(selectedEllipse != null && Instruments.currentTool == Instruments.Tool.PointMove && Mouse.DirectlyOver != selectedEllipse)
             {
-                GraphData.GraphPoint point = GraphData.GetPoint(selectedEllipse);
+                Graph.GraphPoint point = Graph.GetPoint(selectedEllipse);
 
                 double y = Mouse.GetPosition(MainCanvas).Y;
                 double x = Mouse.GetPosition(MainCanvas).X;
 
-                GraphData.EditPoint(selectedEllipse, x, y); 
+                Graph.EditPoint(selectedEllipse, x, y); 
 
                 selectedEllipse.Fill = pointFill;
                 selectedEllipse = null;
 
-                InitializeGraph(GraphData.data);                
+                InitializeGraph(Graph.data);                
             }
         }
 
@@ -74,11 +74,11 @@ namespace Graph
             switch (Instruments.currentTool)
             {
                 case Instruments.Tool.PointRemove:
-                    foreach (GraphData.GraphLine l in GraphData.GetLines(sender as Ellipse))
+                    foreach (Graph.GraphLine l in Graph.GetLines(sender as Ellipse))
                     {
                         MainCanvas.Children.Remove(l.line);
                     }
-                    GraphData.RemovePoint(sender as Ellipse);
+                    Graph.RemovePoint(sender as Ellipse);
                     MainCanvas.Children.Remove(sender as Ellipse);
                     break;
 
@@ -123,14 +123,14 @@ namespace Graph
                 return;
             }
 
-            GraphData.GraphPoint first = GraphData.GetPoint(selectedEllipse);
-            GraphData.GraphPoint second = GraphData.GetPoint(e);
+            Graph.GraphPoint first = Graph.GetPoint(selectedEllipse);
+            Graph.GraphPoint second = Graph.GetPoint(e);
 
             Line line = new Line() { Stroke = Brushes.Red, StrokeThickness = 2, X1 = first.X, Y1 = first.Y, X2 = second.X, Y2 = second.Y };
             MainCanvas.Children.Add(line);
             Canvas.SetZIndex(line, 2);
 
-            bool added = GraphData.AddLine(selectedEllipse, e, line);
+            bool added = Graph.AddLine(selectedEllipse, e, line);
             if (!added)
             {
                 MainCanvas.Children.Remove(line);
@@ -153,9 +153,9 @@ namespace Graph
                 return;
             }
 
-            GraphData.GraphLine l = GraphData.GetLine(selectedEllipse, e);
+            Graph.GraphLine l = Graph.GetLine(selectedEllipse, e);
             MainCanvas.Children.Remove(l.line);
-            GraphData.RemoveLine(l.line);
+            Graph.RemoveLine(l.line);
 
             DeselectEllipse();
         }
@@ -178,7 +178,7 @@ namespace Graph
             
             if(dialog.ShowDialog() == true)
             {
-                string json = GraphData.DataToJson();
+                string json = Graph.DataToJson();
                 File.WriteAllText(dialog.FileName, json);
             }
         }
@@ -186,7 +186,7 @@ namespace Graph
         private void ClearClick(object sender, RoutedEventArgs e)
         {
             MainCanvas.Children.Clear();
-            GraphData.Clear();
+            Graph.Clear();
         }
 
         private void ImportClick(object sender, RoutedEventArgs e)
@@ -199,16 +199,16 @@ namespace Graph
             if(dialog.ShowDialog() == true)
             {
                 string fileContent = File.ReadAllText(dialog.FileName);                
-                InitializeGraph(GraphData.DataFromJson(fileContent));
+                InitializeGraph(Graph.DataFromJson(fileContent));
             }
         }
 
-        private void InitializeGraph(GraphData.Data data)
+        private void InitializeGraph(Graph.Data data)
         {
             MainCanvas.Children.Clear();
-            GraphData.Clear();
+            Graph.Clear();
 
-            foreach(GraphData.GraphPoint point in data.Points)
+            foreach(Graph.GraphPoint point in data.Points)
             {
                 Ellipse ellipse = new Ellipse() { Height = pointSize, Width = pointSize, Fill = pointFill };
                 ellipse.MouseLeftButtonDown += PointClick;
@@ -218,19 +218,19 @@ namespace Graph
                 Canvas.SetLeft(ellipse, point.X - pointSize / 2);
                 Canvas.SetZIndex(ellipse, 10);
 
-                GraphData.AddPoint(point.Id, point.X, point.Y, ellipse);
+                Graph.AddPoint(point.Id, point.X, point.Y, ellipse);
             }
 
-            foreach(GraphData.GraphLine line in data.Lines)
+            foreach(Graph.GraphLine line in data.Lines)
             {
-                GraphData.GraphPoint first = GraphData.GetPoint(line.FirstId);
-                GraphData.GraphPoint second = GraphData.GetPoint(line.SecondId);
+                Graph.GraphPoint first = Graph.GetPoint(line.FirstId);
+                Graph.GraphPoint second = Graph.GetPoint(line.SecondId);
 
                 Line l = new Line() { Stroke = Brushes.Red, StrokeThickness = 2, X1 = first.X, Y1 = first.Y, X2 = second.X, Y2 = second.Y };
                 MainCanvas.Children.Add(l);
                 Canvas.SetZIndex(l, 2);
 
-                GraphData.AddLine(first, second, l);
+                Graph.AddLine(first, second, l);
             }
         }
 

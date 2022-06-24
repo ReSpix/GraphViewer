@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Diagnostics;
 
-namespace Graph
+namespace GraphViewer
 {
-    class GraphData
+    class Graph
     {
         public struct GraphPoint
         {
