@@ -22,7 +22,7 @@
             <Button Margin="0,20,0,0" Click="ExportClick">Сохранить</Button>
             <Button Margin="0,2,0,0" Click="ImportClick">Открыть</Button>
         </StackPanel>
-        <Border Grid.Column="1" Grid.Row="1" BorderBrush="#FF393939" BorderThickness="1">
+        <Border Grid.Column="1" Grid.Row="1" BorderBrush="#FF393939" Margin="2,2,2,2" BorderThickness="1">
             <Canvas Grid.Column="1" Grid.Row="1" x:Name="MainCanvas" MouseLeftButtonDown="CanvasClick" Background="#FFF4F4F4"/>
         </Border>
     </Grid>
